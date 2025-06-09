@@ -12,6 +12,10 @@ import os
 # Set MLflow tracking URI to local directory to avoid permission issues
 mlflow.set_tracking_uri("file:./mlruns")
 
+# End any existing active run to avoid conflicts
+if mlflow.active_run():
+    mlflow.end_run()
+
 # Create a new MLflow Experiment
 mlflow.set_experiment("Lung Cancer Prediction")
 
@@ -28,7 +32,8 @@ input_example = X_train[0:5]
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 run_name = f"KNN_Modelling_{timestamp}"
 
-with mlflow.start_run(run_name=run_name):
+# Pastikan run baru dibuat dan tidak mencoba mencari run yang sudah ada
+with mlflow.start_run(run_name=run_name, run_id=None):
     # Log parameters
     n_neighbors = 5
     algorithm = 'auto'

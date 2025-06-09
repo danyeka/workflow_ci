@@ -35,9 +35,14 @@ jobs:
       run: |
         pip install -r ./MLProject/requirements.txt
 
-    - name: Run mlflow project
+    - name: Test local model loading
       run: |
-        mlflow run MLProject --env-manager=local
+        python load_local_model.py
+
+    - name: Run mlflow project (alternative approach)
+      run: |
+        cd MLProject
+        python modelling.py
 
     - name: Get latest MLflow run_id
       run: |

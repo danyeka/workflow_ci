@@ -7,16 +7,15 @@ import numpy as np
 from datetime import datetime
 from dagshub import dagshub_logger
 import dagshub
+import os
 
 # dagshub.init(repo_owner='rifdahhhh', repo_name='lung-cancer-submission', mlflow=True)
 
-
-
-# mlflow.set_tracking_uri("http://127.0.0.1:5000/") # untuk di lokal
-# mlflow.set_tracking_uri("https://dagshub.com/rifdahhhh/lung-cancer-submission.mlflow")
+# Set MLflow tracking URI to local directory to avoid permission issues
+mlflow.set_tracking_uri("file:./mlruns")
 
 # Create a new MLflow Experiment
-# mlflow.set_experiment("Lung Cancer Prediction")
+mlflow.set_experiment("Lung Cancer Prediction")
 
 data = pd.read_csv("lung_cancer_clean.csv")
 

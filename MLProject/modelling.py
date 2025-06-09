@@ -5,11 +5,9 @@ from sklearn.model_selection import train_test_split
 import random
 import numpy as np
 from datetime import datetime
-from dagshub import dagshub_logger
-import dagshub
+# from dagshub import dagshub_logger
+# import dagshub
 import os
-
-# dagshub.init(repo_owner='rifdahhhh', repo_name='lung-cancer-submission', mlflow=True)
 
 # Set MLflow tracking URI to local directory to avoid permission issues
 mlflow.set_tracking_uri("file:./mlruns")

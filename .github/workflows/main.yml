@@ -41,7 +41,16 @@ jobs:
 
     - name: Get latest MLflow run_id
       run: |
-        echo "RUN_ID=$(mlflow experiments list --view-type ACTIVE | tail -n 1 | awk '{print $1}')" >> $GITHUB_ENV
+        # Get the latest run ID from the default experiment (ID: 0)
+        RUN_ID=$(python -c "import mlflow; client = mlflow.tracking.MlflowClient(); runs = client.search_runs(experiment_ids=['0'], order_by=['start_time DESC'], max_results=1); print(runs[0].info.run_id if runs else 'NO_RUN_FOUND')")
+        echo "Found RUN_ID: $RUN_ID"
+        echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+        
+        # Verify run exists
+        if [ "$RUN_ID" = "NO_RUN_FOUND" ]; then
+          echo "Error: No MLflow run found"
+          exit 1
+        fi
 
     - name: Install Python dependencies
       run: |

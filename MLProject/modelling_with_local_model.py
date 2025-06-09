@@ -9,8 +9,12 @@ import numpy as np
 from datetime import datetime
 import os
 
-# Set MLflow tracking URI to local directory
-mlflow.set_tracking_uri("file:./mlruns")
+# Set MLflow tracking URI to local directory to avoid permission issues
+# Use absolute path to avoid path resolution issues in GitHub Actions
+import os
+current_dir = os.path.dirname(os.path.abspath(__file__))
+mlruns_path = os.path.join(current_dir, "mlruns")
+mlflow.set_tracking_uri(f"file:{mlruns_path}")
 
 # Create a new MLflow Experiment
 mlflow.set_experiment("Lung Cancer Prediction")

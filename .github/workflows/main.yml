@@ -37,20 +37,54 @@ jobs:
 
     - name: Run mlflow project
       run: |
-        mlflow run MLProject --env-manager=local
+        cd MLProject
+        mlflow run . --env-manager=local
 
     - name: Get latest MLflow run_id
       run: |
-        # Get the latest run ID from the default experiment (ID: 0)
-        RUN_ID=$(python -c "import mlflow; client = mlflow.tracking.MlflowClient(); runs = client.search_runs(experiment_ids=['0'], order_by=['start_time DESC'], max_results=1); print(runs[0].info.run_id if runs else 'NO_RUN_FOUND')")
-        echo "Found RUN_ID: $RUN_ID"
-        echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+        cd MLProject
+        # Set the same tracking URI as in modelling.py
+        export MLFLOW_TRACKING_URI="file:./mlruns"
         
-        # Verify run exists
-        if [ "$RUN_ID" = "NO_RUN_FOUND" ]; then
-          echo "Error: No MLflow run found"
+        # Check if mlruns directory exists
+        if [ ! -d "mlruns" ]; then
+          echo "Error: mlruns directory not found"
           exit 1
         fi
+        
+        # Get the latest run ID using MLflow Python API
+        RUN_ID=$(python -c "
+import mlflow
+import os
+os.chdir('.')
+mlflow.set_tracking_uri('file:./mlruns')
+client = mlflow.tracking.MlflowClient()
+try:
+    experiments = client.search_experiments()
+    if experiments:
+        exp_id = experiments[0].experiment_id
+        runs = client.search_runs(experiment_ids=[exp_id], order_by=['start_time DESC'], max_results=1)
+        if runs:
+            print(runs[0].info.run_id)
+        else:
+            print('NO_RUN_FOUND')
+    else:
+        print('NO_EXPERIMENT_FOUND')
+except Exception as e:
+    print('ERROR: ' + str(e))
+")
+        
+        echo "Found RUN_ID: $RUN_ID"
+        
+        # Verify run exists and is valid
+        if [[ "$RUN_ID" == "NO_RUN_FOUND" || "$RUN_ID" == "NO_EXPERIMENT_FOUND" || "$RUN_ID" == ERROR* ]]; then
+          echo "Error: No valid MLflow run found. RUN_ID: $RUN_ID"
+          echo "Listing mlruns directory contents:"
+          find mlruns -type f -name "meta.yaml" | head -5
+          exit 1
+        fi
+        
+        echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
 
     - name: Install Python dependencies
       run: |

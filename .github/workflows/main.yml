@@ -42,7 +42,7 @@ jobs:
     - name: Run mlflow project (alternative approach)
       run: |
         cd MLProject
-        python modelling.py
+        python modelling_with_local_model.py
 
     - name: Get latest MLflow run_id
       run: |

@@ -40,28 +40,12 @@ if use_existing_model and os.path.exists(model_path):
         model = mlflow.sklearn.load_model(model_path)
         print(f"Model berhasil dimuat dari: {model_path}")
         
-        # Start MLflow run untuk logging metrics
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        run_name = f"KNN_Evaluation_{timestamp}"
+        # Evaluate model without MLflow logging to avoid permission issues
+        y_pred = model.predict(X_test)
+        accuracy = accuracy_score(y_test, y_pred)
         
-        with mlflow.start_run(run_name=run_name):
-            # Log parameters dari model yang sudah ada
-            mlflow.log_param("model_source", "loaded_from_local")
-            mlflow.log_param("model_path", model_path)
-            
-            # Predict and log metrics
-            y_pred = model.predict(X_test)
-            accuracy = accuracy_score(y_test, y_pred)
-            mlflow.log_metric("accuracy", accuracy)
-            
-            print(f"Accuracy dengan model yang sudah ada: {accuracy:.4f}")
-            
-            # Log model lagi untuk run ini (opsional)
-            mlflow.sklearn.log_model(
-                sk_model=model,
-                artifact_path="loaded_model",
-                input_example=input_example
-            )
+        print(f"Accuracy dengan model yang sudah ada: {accuracy:.4f}")
+        print("Model evaluation completed successfully without MLflow logging.")
             
     except Exception as e:
         print(f"Error loading existing model: {str(e)}")

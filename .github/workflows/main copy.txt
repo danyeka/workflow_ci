@@ -71,7 +71,7 @@
 
 #     - name: Build Docker Model
 #       run: |
-#         docker build -t dzaazz/cc:latest .
+#         docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/cc:latest .
 
 #     - name: Log in to Docker Hub
 #       run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin

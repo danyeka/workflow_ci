@@ -14,7 +14,7 @@ from datetime import datetime
 # Commented out DagHub to avoid URI conflicts
 # from dagshub import dagshub_logger
 # import dagshub
-# dagshub.init(repo_owner='rifdahhhh', repo_name='lung-cancer-submission', mlflow=True)
+# dagshub.init(repo_owner='danyeka', repo_name='lung-cancer', mlflow=True)
 
 
 # Set tracking URI ke local file storage

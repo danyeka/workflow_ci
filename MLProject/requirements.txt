@@ -1,4 +1,4 @@
-mlflow==2.8.1
+mlflow>=2.10.0
 cloudpickle==2.2.1
 numpy==1.26.4
 psutil==5.9.5
@@ -8,3 +8,4 @@ pandas==2.1.4
 seaborn==0.12.2
 matplotlib==3.8.2
 setuptools>=65.0.0
+importlib-metadata>=6.0.0

@@ -74,7 +74,10 @@ jobs:
         docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/workflowci:latest .
 
     - name: Log in to Docker Hub
-      run: echo "${{ secrets.DOCKER_HUB_AworkflowciESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+      run: |
+        echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" > docker_token.txt
+        cat docker_token.txt | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+        rm docker_token.txt
 
     - name: Tag Docker Image
       run: |

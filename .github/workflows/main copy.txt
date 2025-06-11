@@ -1,0 +1,86 @@
+# name: MLFlow CI/CD
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - main
+
+# env:
+#   CSV_URL: "MLproject/lung_cancer_clean.csv"
+#   TARGET_VAR: "Lung_Cancer"
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: Run actions/checkout@v3 
+#       uses: actions/checkout@v3
+
+#     - name: Set up Python 3.12.7
+#       uses: actions/setup-python@v4
+#       with:
+#         python-version: 3.12.7
+
+#     - name: Check Env
+#       run: |
+#         echo $CSV_URL
+#         python --version
+#         pip --version
+
+#     - name: Install dependencies
+#       run: |
+#         pip install -r ./MLProject/requirements.txt
+
+#     - name: Test local model loading
+#       run: |
+#         python load_local_model.py
+
+#     - name: Run mlflow project (alternative approach)
+#       run: |
+#         cd MLProject
+#         python modelling_with_local_model.py
+
+#     - name: Get latest MLflow run_id
+#       run: |
+#         # Get the latest run ID from the default experiment (ID: 0)
+#         RUN_ID=$(python -c "import mlflow; client = mlflow.tracking.MlflowClient(); runs = client.search_runs(experiment_ids=['0'], order_by=['start_time DESC'], max_results=1); print(runs[0].info.run_id if runs else 'NO_RUN_FOUND')")
+#         echo "Found RUN_ID: $RUN_ID"
+#         echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+        
+#         # Verify run exists
+#         if [ "$RUN_ID" = "NO_RUN_FOUND" ]; then
+#           echo "Error: No MLflow run found"
+#           exit 1
+#         fi
+        
+#         echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+
+#     - name: Install Python dependencies
+#       run: |
+#         echo "Install dependencies dari model jika perlu"
+#         # Contoh jika model tersimpan di model_dir/model
+#         pip install -r model_dir/model/requirements.txt || echo "Tidak ada file requirements"
+
+#     - name: Upload to Google Drive
+#       run: |
+#         echo "Simulasi upload artifact ke Google Drive"
+
+#     - name: Build Docker Model
+#       run: |
+#         docker build -t dzaazz/cc:latest .
+
+#     - name: Log in to Docker Hub
+#       run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+#     - name: Tag Docker Image
+#       run: |
+#         docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/cc:latest ${{ secrets.DOCKER_HUB_USERNAME }}/cc:v1.0.0
+
+#     - name: Push Docker Image
+#       run: |
+#         docker push ${{ secrets.DOCKER_HUB_USERNAME }}/cc:latest
+#         docker push ${{ secrets.DOCKER_HUB_USERNAME }}/cc:v1.0.0

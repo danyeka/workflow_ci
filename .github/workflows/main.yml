@@ -35,29 +35,13 @@ jobs:
       run: |
         pip install -r ./MLProject/requirements.txt
 
-    - name: Test local model loading
+    - name: Run mlflow project
       run: |
-        python load_local_model.py
-
-    - name: Run mlflow project (alternative approach)
-      run: |
-        cd MLProject
-        python modelling_with_local_model.py
+        mlflow run MLProject --env-manager=local
 
     - name: Get latest MLflow run_id
       run: |
-        # Get the latest run ID from the default experiment (ID: 0)
-        RUN_ID=$(python -c "import mlflow; client = mlflow.tracking.MlflowClient(); runs = client.search_runs(experiment_ids=['0'], order_by=['start_time DESC'], max_results=1); print(runs[0].info.run_id if runs else 'NO_RUN_FOUND')")
-        echo "Found RUN_ID: $RUN_ID"
-        echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-        
-        # Verify run exists
-        if [ "$RUN_ID" = "NO_RUN_FOUND" ]; then
-          echo "Error: No MLflow run found"
-          exit 1
-        fi
-        
-        echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+        echo "RUN_ID=$(mlflow experiments list --view-type ACTIVE | tail -n 1 | awk '{print $1}')" >> $GITHUB_ENV
 
     - name: Install Python dependencies
       run: |
@@ -71,14 +55,14 @@ jobs:
 
     - name: Build Docker Model
       run: |
-        docker build -t dzaazz/cc:latest .
+        docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/cc:latest .
 
     - name: Log in to Docker Hub
       run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
     - name: Tag Docker Image
       run: |
-        docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/cc:latest ${{ secrets.DOCKER_HUB_USERNAME }}/cc:v1.0.0
+        docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/cc:latest ${{ secrets.DOCKER_HUB_USERNAME }}/workflow-ci:v1.0.0
 
     - name: Push Docker Image
       run: |
